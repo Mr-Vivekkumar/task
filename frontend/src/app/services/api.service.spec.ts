@@ -3,6 +3,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { HttpErrorResponse } from '@angular/common/http';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
 describe('ApiService', () => {
   let service: ApiService;
@@ -42,7 +43,7 @@ describe('ApiService', () => {
         expect(data).toEqual(mockData);
       });
 
-      const req = httpMock.expectOne('http://localhost:4000/test');
+      const req = httpMock.expectOne(`${environment.apiUrl}/test`);
       expect(req.request.method).toBe('GET');
       expect(req.request.headers.get('Authorization')).toBe('Bearer test-token');
       expect(req.request.headers.get('Content-Type')).toBe('application/json');
@@ -57,7 +58,7 @@ describe('ApiService', () => {
         expect(data).toEqual(mockData);
       });
 
-      const req = httpMock.expectOne('http://localhost:4000/test?limit=10&sort=price');
+      const req = httpMock.expectOne(`${environment.apiUrl}/test?limit=10&sort=price`);
       expect(req.request.method).toBe('GET');
       req.flush(mockData);
     });
@@ -74,7 +75,7 @@ describe('ApiService', () => {
         }
       });
 
-      const req = httpMock.expectOne('http://localhost:4000/test');
+      const req = httpMock.expectOne(`${environment.apiUrl}/test`);
       req.flush(errorMessage, { status: 500, statusText: 'Server Error' });
     });
   });
@@ -89,7 +90,7 @@ describe('ApiService', () => {
         expect(data).toEqual(mockData);
       });
 
-      const req = httpMock.expectOne('http://localhost:4000/test');
+      const req = httpMock.expectOne(`${environment.apiUrl}/test`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(postData);
       req.flush(mockData);
@@ -106,7 +107,7 @@ describe('ApiService', () => {
         expect(data).toEqual(mockResponse);
       });
 
-      const req = httpMock.expectOne('http://localhost:4000/upload');
+      const req = httpMock.expectOne(`${environment.apiUrl}/upload`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body instanceof FormData).toBeTruthy();
       req.flush(mockResponse);
@@ -120,7 +121,7 @@ describe('ApiService', () => {
         expect(data).toBeInstanceOf(Blob);
       });
 
-      const req = httpMock.expectOne('http://localhost:4000/download');
+      const req = httpMock.expectOne(`${environment.apiUrl}/download`);
       expect(req.request.method).toBe('GET');
       expect(req.request.responseType).toBe('blob');
       req.flush(mockBlob);
