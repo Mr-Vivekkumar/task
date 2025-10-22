@@ -18,7 +18,12 @@ const app = express();
 // Middleware
 const allowedOrigins = process.env.FRONTEND_URL
   ? [process.env.FRONTEND_URL]
-  : [/^http:\/\/localhost(?::\d+)?$/, /^http:\/\/127\.0\.0\.1(?::\d+)?$/];
+  : [
+      /^http:\/\/localhost(?::\d+)?$/, 
+      /^http:\/\/127\.0\.0\.1(?::\d+)?$/,
+      /^https:\/\/.*\.vercel\.app$/,
+      /^https:\/\/.*\.vercel\.dev$/
+    ];
 
 app.use(cors({
   origin: allowedOrigins,
