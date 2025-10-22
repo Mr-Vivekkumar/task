@@ -1,0 +1,31 @@
+# Node modules (will be installed by Vercel)
+node_modules/
+
+# Development files
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# Environment files (use Vercel dashboard for env vars)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+.nyc_output/
+
+# Misc
+*.tgz
+*.tar.gz

@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
+    "vercel-build": "npm run db:generate && npm run build",
     "start": "node dist/server.js",
     "lint": "echo lint: not configured",
     "db:migrate": "prisma migrate dev",
@@ -19,6 +20,9 @@
   "author": "",
   "license": "ISC",
   "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "dependencies": {
     "@prisma/client": "^6.17.1",
     "@types/swagger-jsdoc": "^6.0.4",
