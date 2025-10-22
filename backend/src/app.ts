@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import { setupSwagger } from './config/swagger.js';
+import './db/redis.js'; // Initialize Redis connection
 
 // Import routes
 import authRoutes from './modules/auth/auth.routes.js';
