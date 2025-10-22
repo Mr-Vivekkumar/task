@@ -1,0 +1,50 @@
+// Custom Bootstrap build - only include components we actually use
+// This reduces the CSS bundle size significantly
+
+// Core Bootstrap files (required)
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
+// Utilities (minimal set)
+@import 'bootstrap/scss/utilities';
+
+// Layout & Content (only what we use)
+@import 'bootstrap/scss/containers';
+@import 'bootstrap/scss/grid';
+
+// Forms (essential for our app)
+@import 'bootstrap/scss/forms';
+@import 'bootstrap/scss/buttons';
+
+// Components (only what we actually use)
+@import 'bootstrap/scss/card';
+@import 'bootstrap/scss/alert';
+@import 'bootstrap/scss/spinner';
+@import 'bootstrap/scss/table';
+
+// Navigation (if needed)
+@import 'bootstrap/scss/nav';
+@import 'bootstrap/scss/navbar';
+
+// Exclude unused components:
+// - Modal (not used in current implementation)
+// - Dropdown (not used in current implementation) 
+// - Pagination (using custom pagination)
+// - Carousel (not used)
+// - Accordion (not used)
+// - Badge (not used)
+// - Breadcrumb (not used)
+// - Button group (not used)
+// - Card (included)
+// - Close button (not used)
+// - Collapse (not used)
+// - List group (not used)
+// - Offcanvas (not used)
+// - Placeholders (not used)
+// - Popovers (not used)
+// - Progress (not used)
+// - Scrollspy (not used)
+// - Tabs (not used)
+// - Toasts (not used)
+// - Tooltips (not used)
