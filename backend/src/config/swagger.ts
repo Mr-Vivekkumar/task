@@ -426,9 +426,25 @@ const options = {
 const specs = swaggerJsdoc(options);
 
 export const setupSwagger = (app: Express) => {
+  // Serve the swagger.json file first
+  app.get('/api-docs/swagger.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(specs);
+  });
+
+  // Setup Swagger UI with minimal configuration for Vercel
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
     explorer: true,
     customCss: '.swagger-ui .topbar { display: none }',
-    customSiteTitle: 'Product Management API Documentation'
+    customSiteTitle: 'Product Management API Documentation',
+    swaggerOptions: {
+      url: '/api-docs/swagger.json',
+      dom_id: '#swagger-ui',
+      deepLinking: true,
+      layout: "StandaloneLayout",
+      tryItOutEnabled: true,
+      supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
+      validatorUrl: null // Disable online validator
+    }
   }));
 };
