@@ -432,11 +432,16 @@ export const setupSwagger = (app: Express) => {
     res.send(specs);
   });
 
-  // Setup Swagger UI with minimal configuration for Vercel
+  // Setup Swagger UI with CDN-based configuration for Vercel
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
     explorer: true,
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: 'Product Management API Documentation',
+    customJs: [
+      'https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-bundle.js',
+      'https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-standalone-preset.js'
+    ],
+    customCssUrl: 'https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui.css',
     swaggerOptions: {
       url: '/api-docs/swagger.json',
       dom_id: '#swagger-ui',
@@ -444,7 +449,30 @@ export const setupSwagger = (app: Express) => {
       layout: "StandaloneLayout",
       tryItOutEnabled: true,
       supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
-      validatorUrl: null // Disable online validator
+      validatorUrl: null, // Disable online validator
+      presets: [
+        'SwaggerUIBundle.presets.apis',
+        'SwaggerUIStandalonePreset'
+      ],
+      plugins: [
+        'SwaggerUIBundle.plugins.DownloadUrl'
+      ],
+      onComplete: () => {
+        // Ensure SwaggerUIBundle is available
+        if (typeof window !== 'undefined' && (window as any).SwaggerUIBundle) {
+          console.log('Swagger UI loaded successfully');
+        }
+      }
     }
   }));
+
+  // Fallback route for Swagger UI assets
+  app.get('/api-docs/*', (req, res, next) => {
+    // If the request is for a JavaScript or CSS file that doesn't exist,
+    // redirect to the main Swagger UI page
+    if (req.path.match(/\.(js|css)$/)) {
+      return res.redirect('/api-docs');
+    }
+    next();
+  });
 };

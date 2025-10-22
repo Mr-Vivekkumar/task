@@ -18,6 +18,10 @@ const options = {
         },
         servers: [
             {
+                url: 'https://taskb-livid.vercel.app',
+                description: 'Production server (Vercel)'
+            },
+            {
                 url: 'http://localhost:4000',
                 description: 'Development server'
             }
@@ -414,14 +418,50 @@ const options = {
             }
         ]
     },
-    apis: ['./src/modules/**/*.ts', './src/app.ts']
+    apis: ['./src/modules/**/*.ts', './src/app.ts', './dist/modules/**/*.js', './dist/app.js']
 };
 const specs = swaggerJsdoc(options);
 export const setupSwagger = (app) => {
+    app.get('/api-docs/swagger.json', (req, res) => {
+        res.setHeader('Content-Type', 'application/json');
+        res.send(specs);
+    });
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
         explorer: true,
         customCss: '.swagger-ui .topbar { display: none }',
-        customSiteTitle: 'Product Management API Documentation'
+        customSiteTitle: 'Product Management API Documentation',
+        customJs: [
+            'https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-bundle.js',
+            'https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-standalone-preset.js'
+        ],
+        customCssUrl: 'https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui.css',
+        swaggerOptions: {
+            url: '/api-docs/swagger.json',
+            dom_id: '#swagger-ui',
+            deepLinking: true,
+            layout: "StandaloneLayout",
+            tryItOutEnabled: true,
+            supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
+            validatorUrl: null,
+            presets: [
+                'SwaggerUIBundle.presets.apis',
+                'SwaggerUIStandalonePreset'
+            ],
+            plugins: [
+                'SwaggerUIBundle.plugins.DownloadUrl'
+            ],
+            onComplete: () => {
+                if (typeof window !== 'undefined' && window.SwaggerUIBundle) {
+                    console.log('Swagger UI loaded successfully');
+                }
+            }
+        }
     }));
+    app.get('/api-docs/*', (req, res, next) => {
+        if (req.path.match(/\.(js|css)$/)) {
+            return res.redirect('/api-docs');
+        }
+        next();
+    });
 };
 //# sourceMappingURL=swagger.js.map

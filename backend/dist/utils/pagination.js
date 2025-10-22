@@ -11,9 +11,9 @@ export function decodeCursor(cursor) {
 }
 export function buildOrderBy(sort) {
     if (sort === '-price') {
-        return { price: 'desc', id: 'desc' };
+        return [{ price: 'desc' }, { id: 'desc' }];
     }
-    return { price: 'asc', id: 'asc' };
+    return [{ price: 'asc' }, { id: 'asc' }];
 }
 export function buildWhereClause(query) {
     const where = {};
