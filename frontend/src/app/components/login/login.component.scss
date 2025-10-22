@@ -1,0 +1,23 @@
+.auth-container {
+  min-height: calc(100vh - 56px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+//   background: $body-bg !default;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 1rem;
+  padding: 1.75rem;
+  box-shadow: 0 8px 30px rgba(100, 88, 255, 0.06);
+}
+
+input.form-control {
+  border-radius: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #e6e9ef;
+}

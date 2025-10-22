@@ -1,1 +1,16 @@
-/* You can add global styles to this file, and also import other style files */
+// /* You can add global styles to this file, and also import other style files */
+// @import '~bootstrap/dist/css/bootstrap.min.css';
+// @import 'app/app.scss';
+
+/* Must have @use before any other rules/comments that produce CSS output */
+@use './app/app' as *;
+
+/* global tweaks */
+html, body {
+  height: 100%;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* you can keep any other global rules below */

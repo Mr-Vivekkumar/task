@@ -9,74 +9,23 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="container mt-5">
-      <div class="row justify-content-center">
-        <div class="col-md-6">
-          <div class="card">
-            <div class="card-header">
-              <h3 class="text-center">Register</h3>
-            </div>
-            <div class="card-body">
-              <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
-                <div class="mb-3">
-                  <label for="email" class="form-label">Email</label>
-                  <input
-                    type="email"
-                    class="form-control"
-                    id="email"
-                    name="email"
-                    [(ngModel)]="email"
-                    required
-                    email
-                    #emailInput="ngModel"
-                  />
-                  <div *ngIf="emailInput.invalid && emailInput.touched" class="text-danger">
-                    Please enter a valid email
-                  </div>
-                </div>
-                
-                <div class="mb-3">
-                  <label for="password" class="form-label">Password</label>
-                  <input
-                    type="password"
-                    class="form-control"
-                    id="password"
-                    name="password"
-                    [(ngModel)]="password"
-                    required
-                    minlength="8"
-                    pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]"
-                    #passwordInput="ngModel"
-                  />
-                  <div *ngIf="passwordInput.invalid && passwordInput.touched" class="text-danger">
-                    Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character
-                  </div>
-                </div>
-
-                <div *ngIf="errorMessage" class="alert alert-danger">
-                  {{ errorMessage }}
-                </div>
-
-                <div class="d-grid">
-                  <button
-                    type="submit"
-                    class="btn btn-primary"
-                    [disabled]="registerForm.invalid || isLoading"
-                  >
-                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
-                    {{ isLoading ? 'Registering...' : 'Register' }}
-                  </button>
-                </div>
-
-                <div class="text-center mt-3">
-                  <p>Already have an account? <a routerLink="/login">Login here</a></p>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
+   <div class="register-container">
+  <div class="register-card">
+    <h3>Create account</h3>
+    <form>
+      <div class="form-group">
+        <input class="form-control" placeholder="Name" />
       </div>
-    </div>
+      <div class="form-group">
+        <input class="form-control" placeholder="Email" />
+      </div>
+      <div class="form-group">
+        <input class="form-control" placeholder="Password" type="password" />
+      </div>
+      <button class="btn btn-success btn-submit" type="button">Register</button>
+    </form>
+  </div>
+</div>
   `,
   styles: []
 })

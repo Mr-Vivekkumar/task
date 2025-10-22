@@ -77,8 +77,10 @@ import { AuthService } from '../../services/auth.service';
       </div>
     </div>
   `,
-  styles: []
-})
+  styles: [],
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss'],
+})           
 export class LoginComponent {
   email = '';
   password = '';

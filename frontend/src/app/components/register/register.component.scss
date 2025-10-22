@@ -1,0 +1,20 @@
+.register-container {
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+//   background: $body-bg !default;
+}
+
+.register-card {
+  width: 100%;
+  max-width: 520px;
+  border-radius: 1rem;
+  background: #fff;
+  padding: 1.5rem;
+  box-shadow: 0 6px 22px rgba(100,88,255,0.06);
+}
+
+input.form-control {
+  border-radius: 0.6rem;
+  padding: 0.55rem 0.75rem;
+}

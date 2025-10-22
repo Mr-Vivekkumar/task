@@ -1,4 +1,6 @@
 // Global theme and overrides
+@use 'sass:color';
+
 $brand-primary: #6458ff;
 $brand-success: #41d67c;
 $body-bg: #f7f8fa;
@@ -40,8 +42,8 @@ body {
 
 .btn-primary:hover,
 .btn-primary:focus {
-  background: darken($brand-primary, 7%);
-  border-color: darken($brand-primary, 7%);
+  background: color.adjust($brand-primary, $lightness: -7%);
+  border-color: color.adjust($brand-primary, $lightness: -7%);
 }
 
 input.form-control, select.form-select {
