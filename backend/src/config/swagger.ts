@@ -467,7 +467,7 @@ export const setupSwagger = (app: Express) => {
   }));
 
   // Fallback route for Swagger UI assets
-  app.get('/api-docs/*', (req, res, next) => {
+  app.get('/api-docs/{*splat}', (req, res, next) => {
     // If the request is for a JavaScript or CSS file that doesn't exist,
     // redirect to the main Swagger UI page
     if (req.path.match(/\.(js|css)$/)) {
