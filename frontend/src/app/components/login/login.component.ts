@@ -1,13 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="container mt-5">
       <div class="row justify-content-center">
@@ -44,11 +46,11 @@ import { AuthService } from '../../services/auth.service';
                     name="password"
                     [(ngModel)]="password"
                     required
-                    minlength="8"
+                    minlength="1"
                     #passwordInput="ngModel"
                   />
                   <div *ngIf="passwordInput.invalid && passwordInput.touched" class="text-danger">
-                    Password must be at least 8 characters
+                    Password is required
                   </div>
                 </div>
 
@@ -77,34 +79,45 @@ import { AuthService } from '../../services/auth.service';
       </div>
     </div>
   `,
-  styles: [],
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss'],
+  styles: []
 })           
-export class LoginComponent {
+export class LoginComponent implements OnDestroy {
   email = '';
   password = '';
   isLoading = false;
   errorMessage = '';
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   onSubmit() {
     if (this.email && this.password) {
       this.isLoading = true;
       this.errorMessage = '';
+      this.cdr.markForCheck();
 
-      this.authService.login(this.email, this.password).subscribe({
+      this.authService.login(this.email, this.password).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
         next: (response) => {
           this.isLoading = false;
+          this.cdr.markForCheck();
           this.router.navigate(['/products']);
         },
         error: (error) => {
           this.isLoading = false;
           this.errorMessage = error.error?.error || 'Login failed';
+          this.cdr.markForCheck();
         }
       });
     }

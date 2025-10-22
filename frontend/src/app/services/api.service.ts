@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError, retry } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 
 @Injectable({
@@ -19,6 +20,17 @@ export class ApiService {
     });
   }
 
+  private handleError(error: HttpErrorResponse) {
+    if (error.error instanceof ErrorEvent) {
+      // Client-side error
+      console.error('An error occurred:', error.error.message);
+    } else {
+      // Server-side error
+      console.error(`Backend returned code ${error.status}, body was:`, error.error);
+    }
+    return throwError(() => error);
+  }
+
   // Generic methods
   get<T>(endpoint: string, params?: any): Observable<T> {
     let httpParams = new HttpParams();
@@ -32,25 +44,34 @@ export class ApiService {
     return this.http.get<T>(`${this.apiUrl}${endpoint}`, {
       headers: this.getHeaders(),
       params: httpParams
-    });
+    }).pipe(
+      retry(1),
+      catchError(this.handleError)
+    );
   }
 
   post<T>(endpoint: string, data: any): Observable<T> {
     return this.http.post<T>(`${this.apiUrl}${endpoint}`, data, {
       headers: this.getHeaders()
-    });
+    }).pipe(
+      catchError(this.handleError)
+    );
   }
 
   put<T>(endpoint: string, data: any): Observable<T> {
     return this.http.put<T>(`${this.apiUrl}${endpoint}`, data, {
       headers: this.getHeaders()
-    });
+    }).pipe(
+      catchError(this.handleError)
+    );
   }
 
   delete<T>(endpoint: string): Observable<T> {
     return this.http.delete<T>(`${this.apiUrl}${endpoint}`, {
       headers: this.getHeaders()
-    });
+    }).pipe(
+      catchError(this.handleError)
+    );
   }
 
   // File upload
@@ -65,7 +86,9 @@ export class ApiService {
 
     return this.http.post(`${this.apiUrl}${endpoint}`, formData, {
       headers
-    });
+    }).pipe(
+      catchError(this.handleError)
+    );
   }
 
   // Download file
@@ -78,6 +101,8 @@ export class ApiService {
     return this.http.get(`${this.apiUrl}${endpoint}`, {
       headers,
       responseType: 'blob'
-    });
+    }).pipe(
+      catchError(this.handleError)
+    );
   }
 }

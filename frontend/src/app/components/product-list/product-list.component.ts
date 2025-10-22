@@ -1,18 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService, Product, ProductQuery } from '../../services/product.service';
 import { CategoryService, Category } from '../../services/category.service';
 import type { ProductListResponse } from '../../services/product.service';
+import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-product-list',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './product-list.component.html',
-  styles: []
+  styles: [],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProductListComponent implements OnInit {
+export class ProductListComponent implements OnInit, OnDestroy {
   products: Product[] = [];
   categories: Category[] = [];
   isLoading = false;
@@ -25,18 +27,38 @@ export class ProductListComponent implements OnInit {
     limit: 20
   };
 
+  private destroy$ = new Subject<void>();
+  private searchSubject$ = new Subject<string>();
+
   constructor(
     private productService: ProductService,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.loadProducts();
     this.loadCategories();
+    
+    // Setup debounced search
+    this.searchSubject$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.loadProducts();
+    });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadProducts() {
     this.isLoading = true;
+    this.cdr.markForCheck();
+    
     const query: ProductQuery = {
       limit: this.limit,
       sort: (this.sortBy || undefined) as any,
@@ -44,23 +66,30 @@ export class ProductListComponent implements OnInit {
       categoryId: this.selectedCategoryId || undefined
     };
 
-    this.productService.getProducts(query).subscribe({
+    this.productService.getProducts(query).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (response) => {
         this.products = response.data;
         this.pagination = response.pagination;
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (error) => {
         console.error('Error loading products:', error);
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }
 
   loadCategories() {
-    this.categoryService.getCategories().subscribe({
+    this.categoryService.getCategories().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (response) => {
         this.categories = response.data;
+        this.cdr.markForCheck();
       },
       error: (error) => {
         console.error('Error loading categories:', error);
@@ -69,7 +98,7 @@ export class ProductListComponent implements OnInit {
   }
 
   onSearch() {
-    this.loadProducts();
+    this.searchSubject$.next(this.searchQuery);
   }
 
   onCategoryChange() {
@@ -88,6 +117,8 @@ export class ProductListComponent implements OnInit {
   loadMore() {
     if (this.pagination.nextCursor) {
       this.isLoading = true;
+      this.cdr.markForCheck();
+      
       const query: ProductQuery = {
         limit: this.limit,
         cursor: this.pagination.nextCursor,
@@ -96,15 +127,19 @@ export class ProductListComponent implements OnInit {
         categoryId: this.selectedCategoryId || undefined
       };
 
-      this.productService.getProducts(query).subscribe({
+      this.productService.getProducts(query).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
         next: (response) => {
           this.products = [...this.products, ...response.data];
           this.pagination = response.pagination;
           this.isLoading = false;
+          this.cdr.markForCheck();
         },
         error: (error) => {
           console.error('Error loading more products:', error);
           this.isLoading = false;
+          this.cdr.markForCheck();
         }
       });
     }
@@ -122,7 +157,9 @@ export class ProductListComponent implements OnInit {
 
   deleteProduct(id: string) {
     if (confirm('Are you sure you want to delete this product?')) {
-      this.productService.deleteProduct(id).subscribe({
+      this.productService.deleteProduct(id).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
         next: () => {
           this.loadProducts();
         },
@@ -139,7 +176,9 @@ export class ProductListComponent implements OnInit {
   }
 
   downloadCSV() {
-    this.productService.downloadCSV().subscribe({
+    this.productService.downloadCSV().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -155,7 +194,9 @@ export class ProductListComponent implements OnInit {
   }
 
   downloadXLSX() {
-    this.productService.downloadXLSX().subscribe({
+    this.productService.downloadXLSX().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
