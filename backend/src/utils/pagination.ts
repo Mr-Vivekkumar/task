@@ -19,9 +19,9 @@ export function decodeCursor(cursor: string): CursorData | null {
 
 export function buildOrderBy(sort?: string): any {
   if (sort === '-price') {
-    return { price: 'desc', id: 'desc' };
+    return [{ price: 'desc' }, { id: 'desc' }];
   }
-  return { price: 'asc', id: 'asc' };
+  return [{ price: 'asc' }, { id: 'asc' }];
 }
 
 export function buildWhereClause(query: {
