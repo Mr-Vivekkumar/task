@@ -20,6 +20,10 @@ const options = {
     },
     servers: [
       {
+        url: 'https://taskb-livid.vercel.app',
+        description: 'Production server (Vercel)'
+      },
+      {
         url: 'http://localhost:4000',
         description: 'Development server'
       }
@@ -416,7 +420,7 @@ const options = {
       }
     ]
   },
-  apis: ['./src/modules/**/*.ts', './src/app.ts']
+  apis: ['./src/modules/**/*.ts', './src/app.ts', './dist/modules/**/*.js', './dist/app.js']
 };
 
 const specs = swaggerJsdoc(options);
