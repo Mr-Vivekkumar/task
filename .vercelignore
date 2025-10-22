@@ -1,0 +1,35 @@
+# Backend files (not needed for frontend deployment)
+backend/
+docs/
+postman/
+setup.md
+task.md
+
+# Frontend development files
+frontend/node_modules/
+frontend/.angular/
+frontend/dist/
+frontend/*.log
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Testing
+frontend/coverage/
+frontend/.nyc_output/
+
+# Misc
+*.tgz
+*.tar.gz
