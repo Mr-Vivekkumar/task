@@ -1,28 +1,37 @@
 {
   "info": {
     "name": "Product Management API",
-    "description": "Complete API collection for the Product Management System",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "description": "Complete API collection for the Product Management System with comprehensive documentation and examples. This collection covers all endpoints for user management, authentication, product operations, category management, bulk uploads, and reporting features.\n\n## Getting Started\n1. **Authentication**: Start by calling the Login endpoint to obtain your JWT token\n2. **Token Management**: The token is automatically stored in the `authToken` variable for use in other requests\n3. **Base URL**: The collection uses the production URL by default. Change the `baseUrl` variable for different environments\n\n## Key Features\n- **User Management**: Complete CRUD operations for user accounts\n- **Product Management**: Advanced filtering, sorting, and search capabilities\n- **Category Management**: Organize products with hierarchical categories\n- **Bulk Operations**: Import/export products via CSV and XLSX files\n- **Real-time Status**: Track asynchronous operations with status endpoints\n- **Comprehensive Reports**: Export data in multiple formats\n\n## Authentication\nAll endpoints (except System and Authentication) require a Bearer token in the Authorization header. The Login endpoint automatically stores the token for subsequent requests.\n\n## Rate Limiting\nAPI requests are rate-limited. Check response headers for current limits and reset times.\n\n## Error Handling\nAll endpoints return consistent error responses with appropriate HTTP status codes and descriptive error messages.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "patch": 0
+    }
   },
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:4000",
-      "type": "string"
+      "value": "https://product-management-api.vercel.app",
+      "type": "string",
+      "description": "Production backend URL for the Product Management API"
     },
     {
       "key": "authToken",
       "value": "",
-      "type": "string"
+      "type": "string",
+      "description": "JWT authentication token obtained from login endpoint"
     }
   ],
   "item": [
     {
       "name": "System",
+      "description": "System health and documentation endpoints for monitoring and API exploration",
       "item": [
         {
           "name": "Health",
           "request": {
+            "description": "Check the health status of the API server. Returns server status, uptime, and basic system information.",
             "method": "GET",
             "header": [],
             "url": {
@@ -36,6 +45,7 @@
         {
           "name": "Swagger UI",
           "request": {
+            "description": "Access the interactive Swagger documentation interface for the API. This provides a web-based interface to explore and test all available endpoints.",
             "method": "GET",
             "header": [],
             "url": {
@@ -50,10 +60,12 @@
     },
     {
       "name": "Authentication",
+      "description": "User authentication endpoints for registration and login. All other endpoints require a valid JWT token obtained from the login endpoint.",
       "item": [
         {
           "name": "Register",
           "request": {
+            "description": "Register a new user account. Requires email and password. Password must be at least 8 characters with uppercase, lowercase, number, and special character.",
             "method": "POST",
             "header": [
               {
@@ -91,6 +103,7 @@
             }
           ],
           "request": {
+            "description": "Authenticate user and obtain JWT token. The token is automatically stored in the authToken variable for use in other requests. Token expires in 24 hours.",
             "method": "POST",
             "header": [
               {
@@ -114,10 +127,12 @@
     },
     {
       "name": "Users",
+      "description": "User management endpoints for CRUD operations. All endpoints require authentication via Bearer token.",
       "item": [
         {
           "name": "Get All Users",
           "request": {
+            "description": "Retrieve a paginated list of all users in the system. Supports pagination with limit and offset parameters.",
             "method": "GET",
             "header": [
               {
@@ -136,6 +151,7 @@
         {
           "name": "Create User",
           "request": {
+            "description": "Create a new user account. Requires email and password. Password must meet security requirements.",
             "method": "POST",
             "header": [
               {
@@ -243,10 +259,12 @@
     },
     {
       "name": "Categories",
+      "description": "Category management endpoints for organizing products. Categories are used to group and filter products in the system.",
       "item": [
         {
           "name": "Get All Categories",
           "request": {
+            "description": "Retrieve all available product categories. Returns category ID, name, and product count.",
             "method": "GET",
             "header": [
               {
@@ -372,10 +390,12 @@
     },
     {
       "name": "Products",
+      "description": "Product management endpoints with advanced filtering, sorting, and search capabilities. Supports pagination and bulk operations.",
       "item": [
         {
           "name": "Get Products (with pagination)",
           "request": {
+            "description": "Retrieve products with pagination, sorting, and search. Query parameters: limit (items per page), sort (field to sort by, prefix with - for descending), q (search query).",
             "method": "GET",
             "header": [
               {
@@ -567,10 +587,12 @@
     },
     {
       "name": "Bulk Upload",
+      "description": "Bulk upload endpoints for importing multiple products via CSV or XLSX files. Supports asynchronous processing with status tracking.",
       "item": [
         {
           "name": "Upload CSV File",
           "request": {
+            "description": "Upload a CSV file containing product data for bulk import. File should have columns: name, price, image, categoryId. Returns operation ID for status tracking.",
             "method": "POST",
             "header": [
               {
@@ -628,10 +650,12 @@
     },
     {
       "name": "Operations",
+      "description": "Operation status tracking for asynchronous operations like bulk uploads. Use operation ID to check processing status.",
       "item": [
         {
           "name": "Get Operation Status",
           "request": {
+            "description": "Check the status of an asynchronous operation (e.g., bulk upload). Returns operation status, progress, and any error messages.",
             "method": "GET",
             "header": [
               {
@@ -657,10 +681,12 @@
     },
     {
       "name": "Reports",
+      "description": "Report generation endpoints for exporting product data in various formats (CSV, XLSX). Useful for data analysis and backup purposes.",
       "item": [
         {
           "name": "Download CSV Report",
           "request": {
+            "description": "Download all products as a CSV file. Includes product details, categories, and timestamps. Useful for data export and analysis.",
             "method": "GET",
             "header": [
               {
