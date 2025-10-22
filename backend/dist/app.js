@@ -11,17 +11,37 @@ import operationsRoutes from './modules/operations/operations.routes.js';
 import bulkUploadRoutes from './modules/bulk-upload/bulk-upload.routes.js';
 import reportsRoutes from './modules/reports/reports.routes.js';
 const app = express();
-const allowedOrigins = process.env.FRONTEND_URL
-    ? [process.env.FRONTEND_URL]
-    : [
-        /^http:\/\/localhost(?::\d+)?$/,
-        /^http:\/\/127\.0\.0\.1(?::\d+)?$/,
-        /^https:\/\/.*\.vercel\.app$/,
-        /^https:\/\/.*\.vercel\.dev$/
-    ];
+const allowedOrigins = [
+    'https://task-eight-weld.vercel.app',
+    'http://localhost:4200',
+    'http://localhost:3000',
+    'http://127.0.0.1:4200',
+    'http://127.0.0.1:3000'
+];
+if (process.env.FRONTEND_URL) {
+    allowedOrigins.push(process.env.FRONTEND_URL);
+}
 app.use(cors({
-    origin: allowedOrigins,
-    credentials: true
+    origin: (origin, callback) => {
+        if (!origin) {
+            console.log('CORS allowing request with no origin');
+            return callback(null, true);
+        }
+        const isAllowed = allowedOrigins.includes(origin);
+        if (isAllowed) {
+            console.log('CORS allowing origin:', origin);
+            callback(null, true);
+        }
+        else {
+            console.log('CORS blocked origin:', origin);
+            console.log('Allowed origins:', allowedOrigins);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+    optionsSuccessStatus: 200
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
