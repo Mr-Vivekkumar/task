@@ -1,0 +1,110 @@
+// Global theme and overrides
+$brand-primary: #6458ff;
+$brand-success: #41d67c;
+$body-bg: #f7f8fa;
+$body-color: #22272e;
+
+body {
+  background: $body-bg;
+  color: $body-color;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+}
+
+.card {
+  border-radius: 1rem;
+  box-shadow: 0 2px 12px rgba(100, 88, 255, 0.09), 0 1.5px 6px rgba(34, 39, 46, 0.06);
+  border: none;
+}
+
+.card-header {
+  background: $brand-primary;
+  color: #fff;
+  border-radius: 1rem 1rem 0 0;
+  font-weight: 600;
+}
+
+.btn-primary,
+.btn-success,
+.btn-info,
+.btn-warning {
+  border-radius: 999px;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(100, 88, 255, 0.09);
+  transition: background 0.18s, color 0.18s;
+}
+
+.btn-primary {
+  background: $brand-primary;
+  border-color: $brand-primary;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background: darken($brand-primary, 7%);
+  border-color: darken($brand-primary, 7%);
+}
+
+input.form-control, select.form-select {
+  border-radius: 0.5rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+input.form-control:focus, select.form-select:focus {
+  border-color: $brand-primary;
+  box-shadow: 0 0 0 0.15rem rgba(100, 88, 255, 0.20);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  background: #eceffd;
+}
+::-webkit-scrollbar-thumb {
+  background: $brand-primary;
+  border-radius: 4px;
+}
+
+.table-striped > tbody > tr:nth-child(odd) > * {
+  background: #eceffd33;
+}
+
+.img-thumbnail {
+  border-radius: 8px;
+  border: none;
+  box-shadow: 0 2px 6px rgba(100, 88, 255, 0.09);
+}
+
+.navbar {
+  min-height: 56px;
+  background: linear-gradient(90deg, $brand-primary 70%, #41d67c 100%);
+}
+
+.navbar .navbar-brand {
+  letter-spacing: 0.02em;
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+
+.navbar .nav-link.active {
+  color: $brand-success !important;
+}
+
+.alert {
+  border-radius: 0.75rem;
+  box-shadow: 0 1.5px 4px rgba(100, 88, 255, 0.15);
+}
+
+/* Container refinements */
+.container {
+  max-width: 940px;
+}
+
+.mt-5 {
+  margin-top: 2.5rem !important;
+}
+
+.mt-4 {
+  margin-top: 1.5rem !important;
+}
+
+.text-center {
+  text-align: center !important;
+}

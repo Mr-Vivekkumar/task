@@ -1,0 +1,163 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Products</h2>
+        <div>
+          <button class="btn btn-primary me-2" (click)="openCreateModal()">
+            Add Product
+          </button>
+          <button class="btn btn-success me-2" (click)="openBulkUploadModal()">
+            Bulk Upload
+          </button>
+          <button class="btn btn-info me-2" (click)="downloadCSV()">
+            Download CSV
+          </button>
+          <button class="btn btn-warning" (click)="downloadXLSX()">
+            Download XLSX
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-4">
+              <label for="search" class="form-label">Search</label>
+              <input
+                type="text"
+                class="form-control"
+                id="search"
+                [(ngModel)]="searchQuery"
+                (input)="onSearch()"
+                placeholder="Search products or categories..."
+              />
+            </div>
+            <div class="col-md-3">
+              <label for="category" class="form-label">Category</label>
+              <select
+                class="form-select"
+                id="category"
+                [(ngModel)]="selectedCategoryId"
+                (change)="onCategoryChange()"
+              >
+                <option value="">All Categories</option>
+                <option *ngFor="let category of categories" [value]="category.id">
+                  {{ category.name }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label for="sort" class="form-label">Sort by Price</label>
+              <select
+                class="form-select"
+                id="sort"
+                [(ngModel)]="sortBy"
+                (change)="onSortChange()"
+              >
+                <option value="">Default</option>
+                <option value="price">Price: Low to High</option>
+                <option value="-price">Price: High to Low</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label for="limit" class="form-label">Per Page</label>
+              <select
+                class="form-select"
+                id="limit"
+                [(ngModel)]="limit"
+                (change)="onLimitChange()"
+              >
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products Table -->
+      <div class="card">
+        <div class="card-body">
+          <div *ngIf="isLoading" class="text-center">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+
+          <div *ngIf="!isLoading && products.length === 0" class="text-center py-4">
+            <p class="text-muted">No products found</p>
+          </div>
+
+          <div *ngIf="!isLoading && products.length > 0" class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Price</th>
+                  <th>Category</th>
+                  <th>Image</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let product of products">
+                  <td>{{ product.name }}</td>
+                  <td>${{ product.price | number:'1.2-2' }}</td>
+                  <td>{{ product.category.name }}</td>
+                  <td>
+                    <img
+                      *ngIf="product.image"
+                      [src]="product.image"
+                      [alt]="product.name"
+                      class="img-thumbnail"
+                      style="width: 50px; height: 50px; object-fit: cover;"
+                    />
+                    <span *ngIf="!product.image" class="text-muted">No image</span>
+                  </td>
+                  <td>{{ product.createdAt | date:'short' }}</td>
+                  <td>
+                    <button
+                      class="btn btn-sm btn-outline-primary me-1"
+                      (click)="editProduct(product)"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      class="btn btn-sm btn-outline-danger"
+                      (click)="deleteProduct(product.id)"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div *ngIf="!isLoading && products.length > 0" class="d-flex justify-content-between align-items-center mt-3">
+            <div>
+              <p class="text-muted mb-0">
+                Showing {{ products.length }} products
+                <span *ngIf="pagination.hasNextPage">(more available)</span>
+              </p>
+            </div>
+            <div>
+              <button
+                class="btn btn-outline-primary"
+                [disabled]="!pagination.nextCursor"
+                (click)="loadMore()"
+              >
+                Load More
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

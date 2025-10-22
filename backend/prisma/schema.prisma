@@ -1,0 +1,47 @@
+// Prisma schema for PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model Category {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @unique
+  products  Product[]
+}
+
+model Product {
+  id         String    @id @default(uuid()) @db.Uuid
+  name       String
+  image      String?
+  price      Decimal   @db.Decimal(19, 4)
+  categoryId String    @db.Uuid
+  category   Category  @relation(fields: [categoryId], references: [id])
+  createdAt  DateTime  @default(now())
+
+  @@index([name])
+  @@index([price, id])
+  @@index([categoryId])
+}
+
+model Operation {
+  id          String   @id @default(uuid()) @db.Uuid
+  type        String   // 'bulk_upload' | 'report_generation'
+  status      String   // 'queued' | 'running' | 'succeeded' | 'failed'
+  meta        Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  completedAt DateTime?
+}
