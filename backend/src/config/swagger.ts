@@ -462,12 +462,14 @@ export const setupSwagger = (app: Express) => {
     next();
   });
 
-  // Setup Swagger UI with debugging
+  // Setup Swagger UI with debugging and custom configuration
   console.log('Setting up Swagger UI...');
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
     explorer: true,
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: 'Product Management API Documentation',
+    customJs: [], // Don't load external JS files
+    customCssUrl: '', // Don't load external CSS files
     swaggerOptions: {
       url: '/api-docs/swagger.json',
       dom_id: '#swagger-ui',
@@ -475,6 +477,8 @@ export const setupSwagger = (app: Express) => {
       tryItOutEnabled: true,
       supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
       validatorUrl: null, // Disable online validator
+      presets: [], // Don't use external presets
+      plugins: [], // Don't use external plugins
       requestInterceptor: (req: any) => {
         console.log('Swagger request interceptor:', req.url, req.method);
         return req;
@@ -485,6 +489,53 @@ export const setupSwagger = (app: Express) => {
       }
     }
   }));
+
+  // Serve a custom Swagger UI page that doesn't rely on external assets
+  app.get('/api-docs/custom', (req, res) => {
+    const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Product Management API Documentation</title>
+      <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui.css" />
+      <style>
+        .swagger-ui .topbar { display: none }
+        body { margin: 0; }
+      </style>
+    </head>
+    <body>
+      <div id="swagger-ui"></div>
+      <script src="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-bundle.js"></script>
+      <script src="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-standalone-preset.js"></script>
+      <script>
+        window.onload = function() {
+          console.log('Loading custom Swagger UI...');
+          const ui = SwaggerUIBundle({
+            url: '/api-docs/swagger.json',
+            dom_id: '#swagger-ui',
+            deepLinking: true,
+            presets: [
+              SwaggerUIBundle.presets.apis,
+              SwaggerUIStandalonePreset
+            ],
+            plugins: [
+              SwaggerUIBundle.plugins.DownloadUrl
+            ],
+            layout: "StandaloneLayout",
+            tryItOutEnabled: true,
+            supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
+            validatorUrl: null
+          });
+          console.log('Custom Swagger UI loaded successfully');
+        };
+      </script>
+    </body>
+    </html>
+    `;
+    res.send(html);
+  });
 
   // Handle problematic JavaScript files that are causing errors
   app.get('/api-docs/swagger-ui-bundle.js', (req, res) => {
