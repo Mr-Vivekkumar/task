@@ -463,6 +463,7 @@ export const setupSwagger = (app: Express) => {
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
     explorer: true,
     customCss: '.swagger-ui .topbar { display: none }',
+    customCssUrl: 'https://unpkg.com/swagger-ui-dist/swagger-ui.css',
     customSiteTitle: 'Product Management API Documentation',
     customfavIcon: '/favicon.ico',
     swaggerOptions: {
