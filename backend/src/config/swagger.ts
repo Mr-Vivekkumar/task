@@ -422,10 +422,7 @@ const options = {
   },
   apis: [
     './src/modules/**/*.ts', 
-    './src/app.ts', 
-    './dist/modules/**/*.js', 
-    './dist/app.js',
-    './api/index.js'
+    './src/app.ts'
   ]
 };
 
@@ -455,7 +452,7 @@ export const setupSwagger = (app: Express) => {
     }
   });
 
-  // Setup Swagger UI with production-optimized configuration
+  // Setup Swagger UI with minimal configuration to avoid asset loading issues
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
     explorer: true,
     customCss: '.swagger-ui .topbar { display: none }',
@@ -464,15 +461,11 @@ export const setupSwagger = (app: Express) => {
       url: '/api-docs/swagger.json',
       dom_id: '#swagger-ui',
       deepLinking: true,
-      layout: "StandaloneLayout",
       tryItOutEnabled: true,
       supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
       validatorUrl: null, // Disable online validator
       requestInterceptor: (req: any) => {
         console.log('Swagger request:', req.url, req.method);
-        // Add CORS headers to requests
-        req.headers = req.headers || {};
-        req.headers['Access-Control-Allow-Origin'] = '*';
         return req;
       },
       responseInterceptor: (res: any) => {
@@ -482,6 +475,5 @@ export const setupSwagger = (app: Express) => {
     }
   }));
 
-  // Note: Removed fallback route to avoid path-to-regexp issues
-  // Swagger UI will handle its own asset loading
+  // Swagger UI will use bundled assets from swagger-ui-express package
 };
