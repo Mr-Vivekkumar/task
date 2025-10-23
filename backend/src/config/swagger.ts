@@ -1,6 +1,15 @@
 import swaggerJsdoc from 'swagger-jsdoc';
 import { Express } from 'express';
 import swaggerUi from 'swagger-ui-express';
+import path from 'path';
+
+const cwd = process.cwd();
+const apiGlobs = [
+  `${cwd}/src/modules/**/*.ts`,
+  `${cwd}/src/app.ts`,
+  `${cwd}/dist/modules/**/*.js`,
+  `${cwd}/dist/app.js`
+].map(p => p.replace(/\\/g, '/'));
 
 const options = {
   definition: {
@@ -420,12 +429,7 @@ const options = {
       }
     ]
   },
-  apis: [
-    './src/modules/**/*.ts', 
-    './src/app.ts',
-    './dist/modules/**/*.js', 
-    './dist/app.js'
-  ]
+  apis: apiGlobs
 };
 
 const specs = swaggerJsdoc(options);
