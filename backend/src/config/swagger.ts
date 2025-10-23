@@ -422,7 +422,9 @@ const options = {
   },
   apis: [
     './src/modules/**/*.ts', 
-    './src/app.ts'
+    './src/app.ts',
+    './dist/modules/**/*.js', 
+    './dist/app.js'
   ]
 };
 
