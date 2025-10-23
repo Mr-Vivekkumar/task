@@ -156,7 +156,8 @@ export class ReportsService {
 
       // Stream the workbook to response
       await workbook.xlsx.write(res);
-      res.end();
+      // Make sure to end the response properly
+      res.status(200).end();
     } catch (error) {
       res.status(500).json({
         success: false,
