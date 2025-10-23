@@ -3,13 +3,20 @@ import { Express } from 'express';
 import swaggerUi from 'swagger-ui-express';
 import path from 'path';
 
-const cwd = process.cwd();
-const apiGlobs = [
-  `${cwd}/src/modules/**/*.ts`,
-  `${cwd}/src/app.ts`,
-  `${cwd}/dist/modules/**/*.js`,
-  `${cwd}/dist/app.js`
-].map(p => p.replace(/\\/g, '/'));
+const isProd = process.env.NODE_ENV === 'production';
+const apiGlobs = (
+  isProd
+    ? [
+        path.join(__dirname, '../modules/**/*.js'),
+        path.join(__dirname, '../app.js')
+      ]
+    : [
+        path.join(process.cwd(), 'src/modules/**/*.ts'),
+        path.join(process.cwd(), 'src/app.ts'),
+        path.join(process.cwd(), 'dist/modules/**/*.js'),
+        path.join(process.cwd(), 'dist/app.js')
+      ]
+).map(p => p.replace(/\\/g, '/'));
 
 const options = {
   definition: {
