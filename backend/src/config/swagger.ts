@@ -420,28 +420,46 @@ const options = {
       }
     ]
   },
-  apis: ['./src/modules/**/*.ts', './src/app.ts', './dist/modules/**/*.js', './dist/app.js']
+  apis: [
+    './src/modules/**/*.ts', 
+    './src/app.ts', 
+    './dist/modules/**/*.js', 
+    './dist/app.js',
+    './api/index.js'
+  ]
 };
 
 const specs = swaggerJsdoc(options);
 
 export const setupSwagger = (app: Express) => {
-  // Serve the swagger.json file first
-  app.get('/api-docs/swagger.json', (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    res.send(specs);
+  // Handle OPTIONS request for swagger.json
+  app.options('/api-docs/swagger.json', (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.status(200).end();
   });
 
-  // Setup Swagger UI with CDN-based configuration for Vercel
+  // Serve the swagger.json file first
+  app.get('/api-docs/swagger.json', (req, res) => {
+    try {
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      res.send(specs);
+    } catch (error) {
+      console.error('Error serving swagger.json:', error);
+      res.status(500).json({ error: 'Failed to generate API documentation' });
+    }
+  });
+
+  // Setup Swagger UI with production-optimized configuration
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
     explorer: true,
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: 'Product Management API Documentation',
-    customJs: [
-      'https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-bundle.js',
-      'https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-standalone-preset.js'
-    ],
-    customCssUrl: 'https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui.css',
     swaggerOptions: {
       url: '/api-docs/swagger.json',
       dom_id: '#swagger-ui',
@@ -450,29 +468,20 @@ export const setupSwagger = (app: Express) => {
       tryItOutEnabled: true,
       supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
       validatorUrl: null, // Disable online validator
-      presets: [
-        'SwaggerUIBundle.presets.apis',
-        'SwaggerUIStandalonePreset'
-      ],
-      plugins: [
-        'SwaggerUIBundle.plugins.DownloadUrl'
-      ],
-      onComplete: () => {
-        // Ensure SwaggerUIBundle is available
-        if (typeof window !== 'undefined' && (window as any).SwaggerUIBundle) {
-          console.log('Swagger UI loaded successfully');
-        }
+      requestInterceptor: (req: any) => {
+        console.log('Swagger request:', req.url, req.method);
+        // Add CORS headers to requests
+        req.headers = req.headers || {};
+        req.headers['Access-Control-Allow-Origin'] = '*';
+        return req;
+      },
+      responseInterceptor: (res: any) => {
+        console.log('Swagger response:', res.status);
+        return res;
       }
     }
   }));
 
-  // Fallback route for Swagger UI assets
-  app.get('/api-docs/{*splat}', (req, res, next) => {
-    // If the request is for a JavaScript or CSS file that doesn't exist,
-    // redirect to the main Swagger UI page
-    if (req.path.match(/\.(js|css)$/)) {
-      return res.redirect('/api-docs');
-    }
-    next();
-  });
+  // Note: Removed fallback route to avoid path-to-regexp issues
+  // Swagger UI will handle its own asset loading
 };

@@ -18,10 +18,13 @@ const app = express();
 // Middleware
 const allowedOrigins = [
   'https://task-eight-weld.vercel.app', // Explicitly allow your frontend domain
+  'https://taskb-livid.vercel.app', // Allow Swagger UI from same domain
   'http://localhost:4200', // Angular dev server
   'http://localhost:3000', // Alternative local dev
+  'http://localhost:4000', // Local API server
   'http://127.0.0.1:4200',
-  'http://127.0.0.1:3000'
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:4000'
 ];
 
 // Add environment-based origins if specified
@@ -29,30 +32,13 @@ if (process.env.FRONTEND_URL) {
   allowedOrigins.push(process.env.FRONTEND_URL);
 }
 
+// Simplified CORS configuration for better compatibility
 app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) {
-      console.log('CORS allowing request with no origin');
-      return callback(null, true);
-    }
-    
-    // Check if origin is in allowed origins
-    const isAllowed = allowedOrigins.includes(origin);
-    
-    if (isAllowed) {
-      console.log('CORS allowing origin:', origin);
-      callback(null, true);
-    } else {
-      console.log('CORS blocked origin:', origin);
-      console.log('Allowed origins:', allowedOrigins);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: true, // Allow all origins for now to fix Swagger UI
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
-  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+  optionsSuccessStatus: 200
 }));
 
 app.use(express.json({ limit: '10mb' }));
@@ -85,9 +71,33 @@ app.get('/health', (_req, res) => {
 // Setup Swagger documentation
 setupSwagger(app);
 
+// Swagger health check endpoint
+app.get('/api-docs/health', (_req, res) => {
+  res.json({ 
+    status: 'ok', 
+    swagger: 'available',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Backward-compatible redirect for old docs path
-app.get(['/api/docs', '/api/docs/{*splat}'], (req, res) => {
+app.get('/api/docs', (req, res) => {
   res.redirect('/api-docs');
+});
+
+// Handle OPTIONS requests for auth routes
+app.options('/auth/login', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+  res.status(200).end();
+});
+
+app.options('/auth/register', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+  res.status(200).end();
 });
 
 // API routes
@@ -108,8 +118,8 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 
-// 404 handler
-app.all("/{*splat}", (req, res) => {
+// 404 handler - catch all unmatched routes
+app.use((req, res) => {
   res.status(404).json({ status: "fail", message: `Cannot ${req.method} ${req.originalUrl}` });
 });
 
