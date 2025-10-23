@@ -429,8 +429,11 @@ const options = {
 const specs = swaggerJsdoc(options);
 
 export const setupSwagger = (app: Express) => {
+  console.log('Setting up Swagger with specs:', Object.keys(specs));
+  
   // Handle OPTIONS request for swagger.json
   app.options('/api-docs/swagger.json', (req, res) => {
+    console.log('OPTIONS request for swagger.json');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -440,6 +443,7 @@ export const setupSwagger = (app: Express) => {
   // Serve the swagger.json file first
   app.get('/api-docs/swagger.json', (req, res) => {
     try {
+      console.log('Serving swagger.json');
       res.setHeader('Content-Type', 'application/json');
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
       res.setHeader('Access-Control-Allow-Origin', '*');
@@ -452,7 +456,14 @@ export const setupSwagger = (app: Express) => {
     }
   });
 
-  // Setup Swagger UI with minimal configuration to avoid asset loading issues
+  // Debug: Log all requests to /api-docs
+  app.use('/api-docs', (req, res, next) => {
+    console.log('Swagger request:', req.method, req.url, req.headers['user-agent']);
+    next();
+  });
+
+  // Setup Swagger UI with debugging
+  console.log('Setting up Swagger UI...');
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
     explorer: true,
     customCss: '.swagger-ui .topbar { display: none }',
@@ -465,15 +476,31 @@ export const setupSwagger = (app: Express) => {
       supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
       validatorUrl: null, // Disable online validator
       requestInterceptor: (req: any) => {
-        console.log('Swagger request:', req.url, req.method);
+        console.log('Swagger request interceptor:', req.url, req.method);
         return req;
       },
       responseInterceptor: (res: any) => {
-        console.log('Swagger response:', res.status);
+        console.log('Swagger response interceptor:', res.status);
         return res;
       }
     }
   }));
 
-  // Swagger UI will use bundled assets from swagger-ui-express package
+  // Handle problematic JavaScript files that are causing errors
+  app.get('/api-docs/swagger-ui-bundle.js', (req, res) => {
+    console.log('Request for swagger-ui-bundle.js - returning 404 to prevent HTML injection');
+    res.status(404).json({ error: 'Asset not found' });
+  });
+  
+  app.get('/api-docs/swagger-ui-standalone-preset.js', (req, res) => {
+    console.log('Request for swagger-ui-standalone-preset.js - returning 404 to prevent HTML injection');
+    res.status(404).json({ error: 'Asset not found' });
+  });
+  
+  app.get('/api-docs/swagger-ui.css', (req, res) => {
+    console.log('Request for swagger-ui.css - returning 404 to prevent HTML injection');
+    res.status(404).json({ error: 'Asset not found' });
+  });
+  
+  console.log('Swagger setup completed');
 };

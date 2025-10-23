@@ -69,7 +69,9 @@ app.get('/health', (_req, res) => {
 });
 
 // Setup Swagger documentation
+console.log('Initializing Swagger...');
 setupSwagger(app);
+console.log('Swagger initialization completed');
 
 // Swagger health check endpoint
 app.get('/api-docs/health', (_req, res) => {
