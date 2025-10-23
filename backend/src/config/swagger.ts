@@ -456,20 +456,13 @@ export const setupSwagger = (app: Express) => {
     }
   });
 
-  // Debug: Log all requests to /api-docs
-  app.use('/api-docs', (req, res, next) => {
-    console.log('Swagger request:', req.method, req.url, req.headers['user-agent']);
-    next();
-  });
-
-  // Setup Swagger UI with debugging and custom configuration
+  // Setup Swagger UI with robust configuration
   console.log('Setting up Swagger UI...');
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
     explorer: true,
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: 'Product Management API Documentation',
-    customJs: [], // Don't load external JS files
-    customCssUrl: '', // Don't load external CSS files
+    customfavIcon: '/favicon.ico',
     swaggerOptions: {
       url: '/api-docs/swagger.json',
       dom_id: '#swagger-ui',
@@ -477,21 +470,23 @@ export const setupSwagger = (app: Express) => {
       tryItOutEnabled: true,
       supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
       validatorUrl: null, // Disable online validator
-      presets: [], // Don't use external presets
-      plugins: [], // Don't use external plugins
-      requestInterceptor: (req: any) => {
-        console.log('Swagger request interceptor:', req.url, req.method);
-        return req;
+      persistAuthorization: true,
+      displayRequestDuration: true,
+      docExpansion: 'list',
+      filter: true,
+      showExtensions: true,
+      showCommonExtensions: true,
+      onComplete: () => {
+        console.log('Swagger UI loaded successfully');
       },
-      responseInterceptor: (res: any) => {
-        console.log('Swagger response interceptor:', res.status);
-        return res;
+      onFailure: (error: any) => {
+        console.error('Swagger UI failed to load:', error);
       }
     }
   }));
 
-  // Serve a custom Swagger UI page that doesn't rely on external assets
-  app.get('/api-docs/custom', (req, res) => {
+  // Fallback route for when the default Swagger UI fails
+  app.get('/api-docs/fallback', (req, res) => {
     const html = `
     <!DOCTYPE html>
     <html lang="en">
@@ -499,58 +494,126 @@ export const setupSwagger = (app: Express) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Product Management API Documentation</title>
-      <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui.css" />
       <style>
-        .swagger-ui .topbar { display: none }
-        body { margin: 0; }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .header { background: #1f2937; color: white; padding: 1rem; text-align: center; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .api-list { display: grid; gap: 1rem; margin-top: 2rem; }
+        .api-item { border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem; }
+        .api-item h3 { margin: 0 0 0.5rem 0; color: #1f2937; }
+        .api-item p { margin: 0; color: #6b7280; }
+        .endpoint { font-family: monospace; background: #f3f4f6; padding: 0.25rem 0.5rem; border-radius: 4px; }
+        .method { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.875rem; font-weight: bold; margin-right: 0.5rem; }
+        .get { background: #dbeafe; color: #1e40af; }
+        .post { background: #dcfce7; color: #166534; }
+        .put { background: #fef3c7; color: #92400e; }
+        .delete { background: #fee2e2; color: #991b1b; }
+        .json-link { display: inline-block; margin-top: 1rem; padding: 0.5rem 1rem; background: #3b82f6; color: white; text-decoration: none; border-radius: 4px; }
+        .json-link:hover { background: #2563eb; }
       </style>
     </head>
     <body>
-      <div id="swagger-ui"></div>
-      <script src="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-bundle.js"></script>
-      <script src="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-standalone-preset.js"></script>
-      <script>
-        window.onload = function() {
-          console.log('Loading custom Swagger UI...');
-          const ui = SwaggerUIBundle({
-            url: '/api-docs/swagger.json',
-            dom_id: '#swagger-ui',
-            deepLinking: true,
-            presets: [
-              SwaggerUIBundle.presets.apis,
-              SwaggerUIStandalonePreset
-            ],
-            plugins: [
-              SwaggerUIBundle.plugins.DownloadUrl
-            ],
-            layout: "StandaloneLayout",
-            tryItOutEnabled: true,
-            supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
-            validatorUrl: null
-          });
-          console.log('Custom Swagger UI loaded successfully');
-        };
-      </script>
+      <div class="header">
+        <h1>Product Management API Documentation</h1>
+        <p>API Documentation Fallback - Swagger UI is not available</p>
+      </div>
+      <div class="container">
+        <p>This is a fallback documentation page. The Swagger UI is currently unavailable.</p>
+        <a href="/api-docs/swagger.json" class="json-link" target="_blank">View Raw API Spec (JSON)</a>
+        
+        <div class="api-list">
+          <div class="api-item">
+            <h3>Authentication</h3>
+            <p>User authentication and authorization endpoints</p>
+            <div class="endpoint">
+              <span class="method post">POST</span>/auth/register - Register new user
+            </div>
+            <div class="endpoint">
+              <span class="method post">POST</span>/auth/login - User login
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3>Users</h3>
+            <p>User management endpoints</p>
+            <div class="endpoint">
+              <span class="method get">GET</span>/users - List users
+            </div>
+            <div class="endpoint">
+              <span class="method post">POST</span>/users - Create user
+            </div>
+            <div class="endpoint">
+              <span class="method put">PUT</span>/users/:id - Update user
+            </div>
+            <div class="endpoint">
+              <span class="method delete">DELETE</span>/users/:id - Delete user
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3>Categories</h3>
+            <p>Product category management</p>
+            <div class="endpoint">
+              <span class="method get">GET</span>/categories - List categories
+            </div>
+            <div class="endpoint">
+              <span class="method post">POST</span>/categories - Create category
+            </div>
+            <div class="endpoint">
+              <span class="method put">PUT</span>/categories/:id - Update category
+            </div>
+            <div class="endpoint">
+              <span class="method delete">DELETE</span>/categories/:id - Delete category
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3>Products</h3>
+            <p>Product management endpoints</p>
+            <div class="endpoint">
+              <span class="method get">GET</span>/products - List products
+            </div>
+            <div class="endpoint">
+              <span class="method post">POST</span>/products - Create product
+            </div>
+            <div class="endpoint">
+              <span class="method put">PUT</span>/products/:id - Update product
+            </div>
+            <div class="endpoint">
+              <span class="method delete">DELETE</span>/products/:id - Delete product
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3>Bulk Operations</h3>
+            <p>Bulk upload and processing</p>
+            <div class="endpoint">
+              <span class="method post">POST</span>/products/bulk-upload - Upload products in bulk
+            </div>
+            <div class="endpoint">
+              <span class="method get">GET</span>/operations - List operations
+            </div>
+            <div class="endpoint">
+              <span class="method get">GET</span>/operations/:id - Get operation status
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3>Reports</h3>
+            <p>Report generation endpoints</p>
+            <div class="endpoint">
+              <span class="method get">GET</span>/reports/products - Generate products report
+            </div>
+            <div class="endpoint">
+              <span class="method get">GET</span>/reports/categories - Generate categories report
+            </div>
+          </div>
+        </div>
+      </div>
     </body>
     </html>
     `;
     res.send(html);
-  });
-
-  // Handle problematic JavaScript files that are causing errors
-  app.get('/api-docs/swagger-ui-bundle.js', (req, res) => {
-    console.log('Request for swagger-ui-bundle.js - returning 404 to prevent HTML injection');
-    res.status(404).json({ error: 'Asset not found' });
-  });
-  
-  app.get('/api-docs/swagger-ui-standalone-preset.js', (req, res) => {
-    console.log('Request for swagger-ui-standalone-preset.js - returning 404 to prevent HTML injection');
-    res.status(404).json({ error: 'Asset not found' });
-  });
-  
-  app.get('/api-docs/swagger-ui.css', (req, res) => {
-    console.log('Request for swagger-ui.css - returning 404 to prevent HTML injection');
-    res.status(404).json({ error: 'Asset not found' });
   });
   
   console.log('Swagger setup completed');
